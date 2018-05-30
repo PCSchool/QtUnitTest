@@ -38,11 +38,13 @@ private slots:
     void device_testCase2();
 
     void system_testCase1();
+    void system_testCase2(System *system);
 
 private:
     Patient* p1, p2;
     User* u1, u2;
     Device* d1, d2;
+    System* s1;
 
     char gender = 'f';
     QString name_, email_, zipcode_, housenr_, street_;
@@ -226,12 +228,46 @@ void UnitTesting::device_testCase2(){
 
     QVERIFY(d1->getDir().path()+"/" == path_);
     QVERIFY(d1->getName() == devicename_);
+
+    QString notremove = (QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()));
+    if(thisDir.path() != notremove){
+        thisDir.removeRecursively();
+    }
 }
 
 void UnitTesting::system_testCase1(){
 
 
+    QString path = base_;
+    bool check = QDir(path).exists();
+    QVERIFY(check == false);
+
+    s1 = new System();
+
+    check = QDir(path).exists();
+    QVERIFY(check == true);
+
+    system_testCase2(s1);
 }
+
+void UnitTesting::system_testCase2(System *system){
+
+    QVERIFY(s1->hasDevice == false);
+    QVERIFY(s1->hasPatient == false);
+
+    s1->addDevice(*d1);
+    s1->setDevice(*d1);
+    s1->setPatient(p1);
+    s1->setPatientDir(thisDir);
+    s1->setDir(thisDir.path());
+
+    QVERIFY(s1->getDevice().getName() == d1->getName());
+    QVERIFY(s1->getDir().path() == thisDir.path());
+    QVERIFY(s1->getPatient()->getName() == p1->getName());
+    QVERIFY(s1->getPatientDir().path() == thisDir.path());
+
+}
+
 QTEST_APPLESS_MAIN(UnitTesting)
 
 #include "tst_unittesting.moc"

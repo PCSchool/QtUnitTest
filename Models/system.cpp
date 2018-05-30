@@ -12,7 +12,7 @@ System::System()
     hasPatient = false;
     hasDir = false;
 
-    QString path = QString(QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()) + "/SignalSleepDemonstrator");
+    QString path = QString(QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()) + pathBase);
     QDir makedir(path);
     if(!makedir.exists()){
         makedir.mkpath(path);

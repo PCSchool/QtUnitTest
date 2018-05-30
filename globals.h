@@ -24,6 +24,7 @@ const int intervalDefault = 15;
 const QString graphDefault = "LINE";
 const QString sensorDefault = "HEARTRATE";
 
+const QString pathBase = "/unitTestingFiles";
 const QString pathDevices = "/unitTestingFiles/devices/";           // original
 const QString pathPatient = "/unitTestingFiles/patients/";   // original
 
