@@ -7,6 +7,7 @@
 #include <Models/binarypatient.h>
 #include <Models/globals.h>
 #include <QStandardPaths>
+#include <Exceptions/exceptionemptyform.h>
 
 // add necessary includes here
 
@@ -31,6 +32,7 @@ private slots:
     void patient_testCase4();
     void patient_testCase5();
     void patient_testCase6();
+    void patient_testCase7();
 
     void device_testCase1();
     void device_testCase2();
@@ -64,6 +66,7 @@ UnitTesting::UnitTesting()
     patient_testCase4();
     patient_testCase5();
     patient_testCase6();
+    patient_testCase7();
 }
 
 UnitTesting::~UnitTesting()
@@ -109,7 +112,6 @@ void UnitTesting::patient_testCase1(){
     QVERIFY(Patient::validationFormCheck("Jan Klaa&#ssen", controlType::names) == false);
     QVERIFY(Patient::validationFormCheck("Jan Klaa__ssen!", controlType::names) == false);
     QVERIFY(Patient::validationFormCheck("Jan Klaassen12", controlType::names) == false);
-    //QVERIFY(Patient::validationFormCheck("", controlType::names) == false);
 
     QVERIFY(Patient::validationFormCheck("Jan Klaassen", controlType::names) == true);
     QVERIFY(Patient::validationFormCheck(name_, controlType::names) == true);
@@ -128,7 +130,6 @@ void UnitTesting::patient_testCase2(){
     QVERIFY(Patient::validationFormCheck("JKSpider@emailcom", controlType::email) == false);
     QVERIFY(Patient::validationFormCheck("JKSpideremail.com", controlType::email) == false);
     QVERIFY(Patient::validationFormCheck("JKSpideremailco,", controlType::email) == false);
-    //QVERIFY(Patient::validationFormCheck("", controlType::email) == false);
     QVERIFY(Patient::validationFormCheck("JKSpider@@email.com", controlType::email) == false);
     QVERIFY(Patient::validationFormCheck("JKSpider@email@!@#!com", controlType::email) == false);
     QVERIFY(Patient::validationFormCheck("JKSpider123email.com", controlType::email) == false);
@@ -197,6 +198,14 @@ void UnitTesting::patient_testCase6(){
     QVERIFY(p1->getGender() == "unknown");
 }
 
+void UnitTesting::patient_testCase7(){
+    try{
+        QVERIFY(Patient::validationFormCheck("", controlType::names) == false);
+    }catch(ExceptionEmptyForm &e){
+
+    }
+}
+
 void UnitTesting::device_testCase1(){
     deviceDir_ = "/devicedir/";
 
@@ -209,17 +218,18 @@ void UnitTesting::device_testCase1(){
 }
 
 void UnitTesting::device_testCase2(){
+    d1 = new Device(devicename_, path_);
     d1->setActive(true);
     QVERIFY(d1->getActive() == true);
     d1->setActive(false);
     QVERIFY(d1->getActive() == false);
 
-    QVERIFY(d1->getDir().path() == path_);
-    QVERIFY(d1->getName() == name_);
-
+    QVERIFY(d1->getDir().path()+"/" == path_);
+    QVERIFY(d1->getName() == devicename_);
 }
 
 void UnitTesting::system_testCase1(){
+
 
 }
 QTEST_APPLESS_MAIN(UnitTesting)

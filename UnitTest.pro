@@ -18,4 +18,5 @@ HEADERS += \
     Models/device.h \
     Models/binarypatient.h \
     Models/system.h \
-    globals.h
+    globals.h \
+    Exceptions/exceptionemptyform.h

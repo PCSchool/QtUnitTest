@@ -29,8 +29,8 @@ public:
     void setDir(QString path);
     Patient* getPatient();
     void setPatient(Patient* patient);
-    Device getSelectedDevice();
-    void setSelectedDevice(const Device device);
+    Device getDevice();
+    void setDevice(const Device device);
     QDir getPatientDir();
     void setPatientDir(QDir dir);
 

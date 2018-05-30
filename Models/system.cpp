@@ -63,11 +63,11 @@ void System::setPatient(Patient* patient){
     hasPatient = true;
 }
 
-Device System::getSelectedDevice(){
+Device System::getDevice(){
     return selectedDevice;
 }
 
-void System::setSelectedDevice(Device device){
+void System::setDevice(Device device){
     selectedDevice = device;
     hasDevice = true;
 }
