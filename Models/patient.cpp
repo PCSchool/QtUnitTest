@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <models/binarypatient.h>
 #include <exceptions/exceptionemptyform.h>
+#include <Exceptions/exceptioninvalidparameters.h>
 #include <QStandardPaths>
 
 using namespace std;
@@ -15,6 +16,10 @@ Patient::Patient(){
 
 //constructor - for new patients
 Patient::Patient(bool exist, int id, QString email, char gender, QString street, QString housenr, QString zipcode, int homePhone, QString name, QDate date, double weight, double height) : User(id, email, gender, street, housenr, zipcode, homePhone, name, date){
+    if(email.isEmpty() || street.isEmpty() || street.isEmpty() || housenr.isEmpty() ||  housenr.isEmpty() ||  zipcode.isEmpty() ||  name.isEmpty() ||  weight < 0 || height < 0){
+        throw ExceptionInvalidParameters();
+    }
+
     this->weight = weight;
     this->height = height;
     calculateBMI(weight, height);
@@ -167,6 +172,10 @@ void Patient::writeToNote(QString addToNote){
     //write to .txt file in patients directory
     time_t raw;
     time (&raw);
+
+    if(addToNote.isEmpty()){
+        throw ExceptionInvalidParameters();
+    }
 
     ofstream file;
     file.open(pathNotes.toLocal8Bit().constData(), std::ofstream::out | std::ofstream::app);

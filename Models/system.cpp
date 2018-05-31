@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QDebug>
 #include <stdlib.h>
+#include <exceptions/exceptioninvalidparameters.h>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ System::System()
     hasPatient = false;
     hasDir = false;
 
-    QString path = QString(QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()) + pathBase);
+    QString path = QString(QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()) + "/SignalSleepDemonstrator");
     QDir makedir(path);
     if(!makedir.exists()){
         makedir.mkpath(path);
@@ -30,8 +31,6 @@ void System::addDevice(Device device){
 
 void System::removeDevice(Device device){
     QLinkedList<Device>::iterator i;
-    for (i = devices.begin(); i != devices.end(); i++){}
-
 }
 
 QLinkedList<Device> System::getDevices(){
@@ -40,6 +39,8 @@ QLinkedList<Device> System::getDevices(){
 
 //getters / setters voor properties
 void System::setPatientDir(QDir dir){
+    if(dir.path().isEmpty() || dir.path().length() < 4){ throw ExceptionInvalidParameters();}
+
     this->patientDir  = dir;
 }
 
@@ -51,6 +52,8 @@ QDir System::getDir(){
     return dir;
 }
 void System::setDir(const QString path){
+    if(path.isEmpty() || path.length() < 4){throw ExceptionInvalidParameters();}
+
     this->dir.setPath(path);
     hasDir = true;
 }
@@ -59,6 +62,8 @@ Patient* System::getPatient(){
     return selectedPatient;
 }
 void System::setPatient(Patient* patient){
+    if(patient->getEmail().isEmpty()){throw ExceptionInvalidParameters();}
+
     selectedPatient = patient;
     hasPatient = true;
 }
@@ -73,6 +78,8 @@ void System::setDevice(Device device){
 }
 
 void System::removePatient(QString path){
+    if(path.isEmpty()){throw ExceptionInvalidParameters();}
+
     QDir removeDir(path);
     if(hasPatient){
         if(selectedPatient->userDir.path() != path){
@@ -81,6 +88,6 @@ void System::removePatient(QString path){
             std::cout << endl << "Error: cant remove current active patient.";
         }
     }else{
-        removeDir.removeRecursively();
+        //removeDir.removeRecursively();
     }
 }

@@ -12,7 +12,9 @@ SOURCES +=  tst_unittesting.cpp \
     Models/device.cpp \
     Models/system.cpp \
     Models/recording.cpp \
-    Models/analysis.cpp
+    Models/analysis.cpp \
+    Models/graph.cpp \
+    Models/exporting.cpp
 
 HEADERS += \
     Models/user.h \
@@ -24,4 +26,8 @@ HEADERS += \
     Exceptions/exceptionemptyform.h \
     Models/recording.h \
     Models/analysis.h \
-    Exceptions/exceptioninvalidenumtype.h
+    Exceptions/exceptioninvalidenumtype.h \
+    Exceptions/exceptioninvalidconstructor.h \
+    Models/graph.h \
+    Models/exporting.h \
+    Exceptions/exceptioninvalidparameters.h

@@ -1,7 +1,9 @@
+
 #include "recording.h"
 #include <stdexcept>
 #include <QDateTime>
 #include <Exceptions/exceptioninvalidenumtype.h>
+#include <Exceptions/exceptioninvalidparameters.h>
 
 //default constructor;
 Recording::Recording()
@@ -13,6 +15,7 @@ Recording::Recording()
 Recording::Recording(int width, int height, int x, int y){
     if(width < 0 || height < 0 || x < 0 || y < 0 ){
         //throw exception
+        throw ExceptionInvalidParameters();
     }
     this->width = width;
     this->height = height;
@@ -44,6 +47,9 @@ void Recording::changePosition(int x, int y){
 }
 
 void Recording::changeSize(int width, int height){
+    if(width < 0 || height < 0){
+        throw ExceptionInvalidParameters();
+    }
     size.setHeight(height);
     size.setWidth(width);
 }

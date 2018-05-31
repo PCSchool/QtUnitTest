@@ -9,8 +9,12 @@
 #include <QStandardPaths>
 #include <Exceptions/exceptionemptyform.h>
 #include <Exceptions/exceptioninvalidenumtype.h>
+#include <Exceptions/exceptioninvalidconstructor.h>
+#include <Exceptions/exceptioninvalidparameters.h>
 #include <Models/recording.h>
 #include <Models/analysis.h>
+#include <Models/graph.h>
+#include <Models/exporting.h>
 
 // add necessary includes here
 
@@ -49,6 +53,15 @@ private slots:
     void analysis_testCase1();
     void analysis_testCase2();
 
+    void graph_testCase1();
+    void graph_testCase2();
+
+    void exporting_testCase1();
+    void exporting_testCase2();
+
+    void Exception_testCase2();
+    void Exception_testCase1();
+
 private:
     Patient* p1, p2;
     User* u1, u2;
@@ -56,10 +69,13 @@ private:
     System* s1;
     Recording* r1;
     Analysis* a1;
+    Graph* g1;
+    Exporting* e1;
+
 
     char gender = 'f';
     QString name_, email_, zipcode_, housenr_, street_, fileRecordingPath_, fileRecordingDir_;
-    QString path_, patientDir_, deviceDir_, systemDir_, currentDir_, devicename_, base_;
+    QString path_, patientDir_, deviceDir_, systemDir_, currentDir_, devicename_, base_, exportname_;
     QDate date_;
     int id_, phone_, count_;
     double weight_, height_, bmi_;
@@ -109,7 +125,7 @@ void UnitTesting::initTestCase()
     phone_ = 122313112;
     bmi_ = weight_ / ((height_/100) * (height_/100));
     devicename_ = "onera_01";
-
+    exportname_ = "onera_100";
 
     // /sleepDemonstrator replaced by 'unitTestingFiles'
     base_ = QString(QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()) + "/unitTestingFiles");
@@ -263,11 +279,9 @@ void UnitTesting::device_testCase2(){
 }
 
 void UnitTesting::system_testCase1(){
-
-
     QString path = base_;
-    bool check = QDir(path).exists();
-    QVERIFY(check == false);
+    bool check = QDir(base_).exists();
+    QVERIFY(base_ == false);
 
     s1 = new System();
 
@@ -291,8 +305,6 @@ void UnitTesting::system_testCase2(){
     QVERIFY(s1->getPatient()->getName() == p1->getName());
     QVERIFY(s1->getPatientDir().path() == thisDir.path());
     QVERIFY(s1->getDevices().count() == 1);
-
-
 }
 
 void UnitTesting::recording_testCase1(){
@@ -418,6 +430,137 @@ void UnitTesting::analysis_testCase2(){
     }
 
     QVERIFY(countFile == count_);
+}
+
+void UnitTesting::graph_testCase1(){
+    g1 = new Graph();
+    TimePointer tp;
+
+    QVERIFY(g1->getVector().count() == 0);
+    double y, x;
+    for(x = 0; x < 5; x++){
+        y = x + 1;
+        tp.x = x;
+        tp.y = y;
+        g1->addPoints(tp);
+    }
+    QVERIFY(g1->getVector().count() == 5);
+
+    for(x = 0; x < 21; x++){
+        y = x + 1;
+        tp.x = x;
+        tp.y = y;
+        g1->addPoints(tp);
+    }
+    QVERIFY(g1->getVector().count() == 26);
+
+    g1->resetVector();
+    QVERIFY(g1->getVector().count() == 0);
+
+    QVector<TimePointer> vectorNew;
+    for(x = 0; x < 7; x++){
+        y = x + 1;
+        tp.x = x;
+        tp.y = y;
+        vectorNew.append(tp);
+    }
+
+    QVERIFY(g1->getVector().count() == 0);
+    QVERIFY(vectorNew.count() == 7);
+    g1->newVector(vectorNew);
+    QVERIFY(g1->getVector().count() == 7);
+
+}
+
+void UnitTesting::graph_testCase2(){
+    QVector<TimePointer> vector;
+    TimePointer tp;
+
+    QVERIFY_EXCEPTION_THROWN(g1->addToVector(vector), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(g1->newVector(vector), ExceptionInvalidParameters);
+}
+
+void UnitTesting::exporting_testCase1(){
+    e1 = new Exporting();
+    QDir dir(QDir);
+    e1->setExportDir(thisDir);
+    e1->setObjectName(exportname_);
+    e1->setUserDir(thisDir);
+
+    QVERIFY(e1->getUserDir().path() == thisDir.path());
+    QVERIFY(e1->getExportDir().path() == thisDir.path());
+}
+
+void UnitTesting::exporting_testCase2(){
+    QVERIFY_EXCEPTION_THROWN(e1->cleanUserDir("", "C:/Documents"), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(e1->cleanUserDir("C:/Documents", ""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(e1->setObjectName(""), ExceptionEmptyForm);
+}
+
+void UnitTesting::Exception_testCase1(){
+    QDir ddir("");
+    //analysis
+    QVERIFY_EXCEPTION_THROWN(a1->readFile(""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(a1->readDir(""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(a1->addRecordingDirList(""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(a1->setRecordingFilePath(""), ExceptionInvalidParameters);
+
+    //device
+    QVERIFY_EXCEPTION_THROWN(Device(devicename_, ""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Device("", "/documents/"), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Device::validationCheckExists(""), ExceptionInvalidParameters);
+
+    //exporting
+    QVERIFY_EXCEPTION_THROWN(e1->cleanExportDir("", "path"), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(e1->cleanExportDir("dir", ""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(e1->setExportDir(ddir), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(e1->setUserDir(ddir), ExceptionInvalidParameters);
+
+
+    //graph
+    QVector<TimePointer> vector;
+    QVERIFY_EXCEPTION_THROWN(g1->newVector(vector), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(g1->addToVector(vector), ExceptionInvalidParameters);
+
+    //patient
+    QVERIFY_EXCEPTION_THROWN(p1->writeToNote(""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, -10, email_, gender, street_, housenr_, zipcode_, phone_, name_, date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, "", gender, street_, housenr_, zipcode_, phone_, name_, date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, "", housenr_, zipcode_, phone_, name_, date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, street_, "", zipcode_, phone_, name_, date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, street_, housenr_, "", phone_, name_, date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, street_, housenr_, zipcode_, -10, name_, date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, street_, housenr_, zipcode_, phone_, "", date_, weight_, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, street_, housenr_, zipcode_, phone_, name_, date_, -10, height_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Patient(false, id_, email_, gender, street_, housenr_, zipcode_, phone_, name_, date_, weight_, -10), ExceptionInvalidParameters);
+
+    //recording
+    QVERIFY_EXCEPTION_THROWN(r1->changeSize(-10, 10), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(r1->changeSize(10, -10), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Recording(-10, 10, 10, 10), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Recording(10, -10, 10, 10), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Recording(10, 10, -10, 10), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(Recording(10, 10, 10, -10), ExceptionInvalidParameters);
+
+    //system
+    QVERIFY_EXCEPTION_THROWN(s1->removePatient(""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(s1->setDir(""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(s1->setPatientDir(ddir), ExceptionInvalidParameters);
+
+    //user
+    QVERIFY_EXCEPTION_THROWN(User(12, ""), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(-10, "email"), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(-10, email_, gender, street_, housenr_, zipcode_, phone_, name_, date_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(id_, "", gender, street_, housenr_, zipcode_, phone_, name_, date_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(id_, email_, gender, "", housenr_, zipcode_, phone_, name_, date_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(id_, email_, gender, street_, "", zipcode_, phone_, name_, date_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(id_, email_, gender, street_, housenr_, "", phone_, name_, date_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(id_, email_, gender, street_, housenr_, zipcode_, -10123123123, name_, date_), ExceptionInvalidParameters);
+    QVERIFY_EXCEPTION_THROWN(User(id_, email_, gender, street_, housenr_, zipcode_, phone_, "", date_), ExceptionInvalidParameters);
+}
+
+void UnitTesting::Exception_testCase2(){
+
 }
 
 QTEST_APPLESS_MAIN(UnitTesting)
