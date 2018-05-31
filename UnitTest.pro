@@ -10,7 +10,9 @@ SOURCES +=  tst_unittesting.cpp \
     Models/user.cpp \
     Models/patient.cpp \
     Models/device.cpp \
-    Models/system.cpp
+    Models/system.cpp \
+    Models/recording.cpp \
+    Models/analysis.cpp
 
 HEADERS += \
     Models/user.h \
@@ -19,4 +21,7 @@ HEADERS += \
     Models/binarypatient.h \
     Models/system.h \
     globals.h \
-    Exceptions/exceptionemptyform.h
+    Exceptions/exceptionemptyform.h \
+    Models/recording.h \
+    Models/analysis.h \
+    Exceptions/exceptioninvalidenumtype.h

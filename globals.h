@@ -28,6 +28,8 @@ const QString pathBase = "/unitTestingFiles";
 const QString pathDevices = "/unitTestingFiles/devices/";           // original
 const QString pathPatient = "/unitTestingFiles/patients/";   // original
 
+//const QString[10] arraySensor = {"HEARTRATE", "ACCELEROMETER", "MICROPHONE","SKINTEMPERATURE", "LIGHTSENSOR","INVALIDSENSOR"};
+
 extern char buffer[bufferSize];
 
 enum controlType{email, number, names, zipcodes, phone, housenr};

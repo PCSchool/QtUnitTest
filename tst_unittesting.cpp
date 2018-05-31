@@ -8,6 +8,9 @@
 #include <Models/globals.h>
 #include <QStandardPaths>
 #include <Exceptions/exceptionemptyform.h>
+#include <Exceptions/exceptioninvalidenumtype.h>
+#include <Models/recording.h>
+#include <Models/analysis.h>
 
 // add necessary includes here
 
@@ -38,13 +41,21 @@ private slots:
     void device_testCase2();
 
     void system_testCase1();
-    void system_testCase2(System *system);
+    void system_testCase2();
+
+    void recording_testCase1();
+    void recording_testCase2(double freq, double amplitude, int yAxisMin, int yAxisMax, int xAxisMin, int xAxisMax, int interval, QString typeString, QString sensorString);
+
+    void analysis_testCase1();
+    void analysis_testCase2();
 
 private:
     Patient* p1, p2;
     User* u1, u2;
     Device* d1, d2;
     System* s1;
+    Recording* r1;
+    Analysis* a1;
 
     char gender = 'f';
     QString name_, email_, zipcode_, housenr_, street_;
@@ -69,6 +80,12 @@ UnitTesting::UnitTesting()
     patient_testCase5();
     patient_testCase6();
     patient_testCase7();
+
+    //recording_testCase1();
+    //recording_testCase2();
+
+    //analysis_testCase1();
+    //analysis_testCase2();
 }
 
 UnitTesting::~UnitTesting()
@@ -98,7 +115,10 @@ void UnitTesting::initTestCase()
 
 void UnitTesting::cleanupTestCase()
 {
-
+    QString notremove = (QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()));
+    if(thisDir.path() != notremove){
+        thisDir.removeRecursively();
+    }
 }
 
 void UnitTesting::user_testCase1(){
@@ -246,11 +266,9 @@ void UnitTesting::system_testCase1(){
 
     check = QDir(path).exists();
     QVERIFY(check == true);
-
-    system_testCase2(s1);
 }
 
-void UnitTesting::system_testCase2(System *system){
+void UnitTesting::system_testCase2(){
 
     QVERIFY(s1->hasDevice == false);
     QVERIFY(s1->hasPatient == false);
@@ -265,8 +283,100 @@ void UnitTesting::system_testCase2(System *system){
     QVERIFY(s1->getDir().path() == thisDir.path());
     QVERIFY(s1->getPatient()->getName() == p1->getName());
     QVERIFY(s1->getPatientDir().path() == thisDir.path());
+    QVERIFY(s1->getDevices().count() == 1);
+
 
 }
+
+void UnitTesting::recording_testCase1(){
+    double freq = 10.0;
+    double amplitude = 10.9;
+    int yAxisMin = 0;
+    int yAXisMax = 15;
+    int xAxisMin = -10;
+    int xAxisMax = 20;
+    int interval = 22;
+    Recording::Sensors sensor = Recording::Sensors::microphone;
+    Recording::Types type = Recording::Types::scatter;
+    QString sensorString = r1->convertSensor(sensor);
+    QString typeString = r1->convertGraphType(type);
+
+    r1 = new Recording();
+
+    r1 = new Recording(500, 500, 40, 10);
+
+    //test enum Sensors{heartrate = 0, accelerometer, microphone, skintemperature, lightsensor, invalidsensor};
+    sensor = Recording::Sensors::accelerometer;
+    sensorString = r1->convertSensor(sensor);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    sensor = Recording::Sensors::heartrate;
+    sensorString = r1->convertSensor(sensor);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    sensor = Recording::Sensors::microphone;
+    sensorString = r1->convertSensor(sensor);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    sensor = Recording::Sensors::skintemperature;
+    sensorString = r1->convertSensor(sensor);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    sensor = Recording::Sensors::lightsensor;
+    sensorString = r1->convertSensor(sensor);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    //enum Types{line = 0, bar, histogram, scatter, invalidtype};
+    type = Recording::Types::line;
+    typeString = r1->convertGraphType(type);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    type = Recording::Types::bar;
+    typeString = r1->convertGraphType(type);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    type = Recording::Types::histogram;
+    typeString = r1->convertGraphType(type);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    type = Recording::Types::scatter;
+    typeString = r1->convertGraphType(type);
+    recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+
+    // invalid enum types
+    QVERIFY_EXCEPTION_THROWN(sensor = Recording::Sensors::invalidsensor;
+            sensorString = r1->convertSensor(sensor);
+            recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString)
+        , ExceptionInvalidEnumType);
+
+    QVERIFY_EXCEPTION_THROWN(type = Recording::Types::invalidtype;
+            typeString = r1->convertGraphType(type);
+            recording_testCase2(freq, amplitude, yAXisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString), ExceptionInvalidEnumType);
+
+}
+
+void UnitTesting::recording_testCase2(double freq, double amplitude, int yAxisMin, int yAxisMax, int xAxisMin, int xAxisMax, int interval, QString typeString, QString sensorString){
+    r1->setProperties(freq, amplitude, yAxisMax, yAxisMin, xAxisMax, xAxisMin, interval, typeString, sensorString);
+    QVERIFY(r1->getAmplitude() == amplitude);
+    QVERIFY(r1->getFrequency() == freq);
+    QVERIFY(r1->getGraphType() == typeString);
+    QVERIFY(r1->getSensor() == sensorString);
+    QVERIFY(r1->getInterval() == interval);
+    QVERIFY(r1->getXAxisMax() == xAxisMax);
+    QVERIFY(r1->getXAxisMin() == xAxisMin);
+    QVERIFY(r1->getYAxisMax() == yAxisMax);
+    QVERIFY(r1->getYAxisMin() == yAxisMin);
+}
+
+void UnitTesting::analysis_testCase1(){
+
+}
+
+void UnitTesting::analysis_testCase2(){
+
+}
+
+
 
 QTEST_APPLESS_MAIN(UnitTesting)
 
