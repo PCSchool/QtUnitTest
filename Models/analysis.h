@@ -26,7 +26,6 @@ public:
     QList<QString> getRecordingList();
     QVector<TimePointer> readFile(QString path);
     QVector<TimePointer> readDir(QString path);
-    void convertMemcpy();
 
 private:
     QDir recordingDir;
@@ -39,3 +38,5 @@ private:
 };
 
 #endif // ANALYSIS_H
+
+

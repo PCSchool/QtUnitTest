@@ -58,12 +58,14 @@ private:
     Analysis* a1;
 
     char gender = 'f';
-    QString name_, email_, zipcode_, housenr_, street_;
+    QString name_, email_, zipcode_, housenr_, street_, fileRecordingPath_, fileRecordingDir_;
     QString path_, patientDir_, deviceDir_, systemDir_, currentDir_, devicename_, base_;
     QDate date_;
-    int id_, phone_;
+    int id_, phone_, count_;
     double weight_, height_, bmi_;
     QDir thisDir;
+    QList<TimePointer> tpList;
+
 };
 
 UnitTesting::UnitTesting()
@@ -108,9 +110,14 @@ void UnitTesting::initTestCase()
     bmi_ = weight_ / ((height_/100) * (height_/100));
     devicename_ = "onera_01";
 
+
     // /sleepDemonstrator replaced by 'unitTestingFiles'
     base_ = QString(QString(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()) + "/unitTestingFiles");
     thisDir = QDir(base_);
+
+    // special recording file
+     fileRecordingPath_ = "recording_0.bin";
+     fileRecordingDir_ = QDir::currentPath() + "/recording";
 }
 
 void UnitTesting::cleanupTestCase()
@@ -369,14 +376,49 @@ void UnitTesting::recording_testCase2(double freq, double amplitude, int yAxisMi
 }
 
 void UnitTesting::analysis_testCase1(){
+    a1 = new Analysis();
+    QVERIFY(a1 != NULL);
 
+    //if recording file cant be found, skip this test for it needs the recording file to function !
+    if(!fileRecordingPath_.isEmpty()){
+        QFile file(fileRecordingPath_);
+        fileRecordingPath_ = QDir::currentPath() + "/" + fileRecordingPath_;
+        QVector<TimePointer> vector = a1->readFile(fileRecordingPath_);
+
+        for(int i = 0; i < vector.count(); i++){
+            vector[i].x;
+            vector[i].y;
+            TimePointer tp;
+            tp.x = vector[i].x;
+            tp.y = vector[i].y;
+            tpList.append(tp);
+        }
+        count_ = vector.count();
+    }
 }
 
 void UnitTesting::analysis_testCase2(){
+    a1 = new Analysis();
+    QVERIFY(a1 != NULL);
 
+    int countFile = count_;
+
+    //if recording file cant be found, skip this test for it needs the recording file to function !
+    if(!fileRecordingPath_.isEmpty()){
+        QVector<TimePointer> vector = a1->readFile(fileRecordingDir_);
+
+        for(int i = 0; i < vector.count(); i++){
+            vector[i].x;
+            vector[i].y;
+            TimePointer tp;
+            tp.x = vector[i].x;
+            tp.y = vector[i].y;
+            tpList.append(tp);
+        }
+    }
+
+    QVERIFY(countFile == count_);
 }
-
-
 
 QTEST_APPLESS_MAIN(UnitTesting)
 
